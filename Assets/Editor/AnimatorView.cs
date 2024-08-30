@@ -145,7 +145,7 @@ namespace com.vrsuya.animatorview {
 				GUILayout.EndHorizontal();
 				GUILayout.BeginHorizontal();
 				GUILayout.FlexibleSpace();
-				TargetSceneZoom = EditorGUILayout.Slider(GUIContent.none, TargetSceneZoom, 0.0f, 5.0f, GUILayout.Width(200));
+				TargetSceneZoom = EditorGUILayout.Slider(GUIContent.none, TargetSceneZoom, 0.0f, 1.5f, GUILayout.Width(200));
 				GUILayout.FlexibleSpace();
 				GUILayout.EndHorizontal();
 				GUILayout.BeginHorizontal();
