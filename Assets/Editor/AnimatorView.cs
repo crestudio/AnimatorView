@@ -1,4 +1,6 @@
 #if UNITY_EDITOR
+using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEditor;
 
@@ -14,6 +16,9 @@ namespace com.vrsuya.animatorview {
 	[InitializeOnLoad]
 	public class AnimatorView : MonoBehaviour {
 
+		private static Dictionary<SceneView, string> SceneViewModes = new Dictionary<SceneView, string>();
+
+		/// <summary>Unity Editor가 매 프레임마다 Scene을 업데이트 하도록 합니다.</summary>
 		static AnimatorView() {
 			EditorApplication.update += OnEditorUpdate;
 			return;
@@ -23,9 +28,44 @@ namespace com.vrsuya.animatorview {
 		private static void OnEditorUpdate() {
 			if (AnimatorViewEditor.IsSceneViewLocked) {
 				if ((GameObject)AnimatorViewEditor.TargetGameObject) {
+					CheckSceneViewModes();
 					foreach (SceneView TargetSceneView in SceneView.sceneViews) {
-						TargetSceneView.pivot = ((GameObject)AnimatorViewEditor.TargetGameObject).transform.position + AnimatorViewEditor.TargetOffset;
-						TargetSceneView.size = AnimatorViewEditor.TargetSceneZoom;
+						Vector3 TargetInterestingPoint = ((GameObject)AnimatorViewEditor.TargetGameObject).transform.position + AnimatorViewEditor.TargetOffset;
+						if (!AnimatorViewEditor.IsRotationLocked) {
+							TargetSceneView.pivot = TargetInterestingPoint;
+							TargetSceneView.size = AnimatorViewEditor.TargetSceneZoom;
+						} else {
+							Quaternion ReferenceRotation = ((GameObject)AnimatorViewEditor.TargetGameObject).transform.rotation;
+							Quaternion TopView = ReferenceRotation * Quaternion.LookRotation(Vector3.up);
+							Quaternion BottomView = ReferenceRotation * Quaternion.LookRotation(Vector3.down);
+							Quaternion LeftView = ReferenceRotation * Quaternion.LookRotation(Vector3.left);
+							Quaternion RightView = ReferenceRotation * Quaternion.LookRotation(Vector3.right);
+							Quaternion FrontView = ReferenceRotation * Quaternion.LookRotation(Vector3.forward);
+							Quaternion BackView = ReferenceRotation * Quaternion.LookRotation(Vector3.back);
+							switch (SceneViewModes[TargetSceneView]) {
+								case "Top":
+									TargetSceneView.LookAt(TargetInterestingPoint, BottomView, AnimatorViewEditor.TargetSceneZoom, true, true);
+									break;
+								case "Bottom":
+									TargetSceneView.LookAt(TargetInterestingPoint, TopView, AnimatorViewEditor.TargetSceneZoom, true, true);
+									break;
+								case "Left":
+									TargetSceneView.LookAt(TargetInterestingPoint, RightView, AnimatorViewEditor.TargetSceneZoom, true, true);
+									break;
+								case "Right":
+									TargetSceneView.LookAt(TargetInterestingPoint, LeftView, AnimatorViewEditor.TargetSceneZoom, true, true);
+									break;
+								case "Front":
+									TargetSceneView.LookAt(TargetInterestingPoint, BackView, AnimatorViewEditor.TargetSceneZoom, true, true);
+									break;
+								case "Back":
+									TargetSceneView.LookAt(TargetInterestingPoint, FrontView, AnimatorViewEditor.TargetSceneZoom, true, true);
+									break;
+								default:
+									TargetSceneView.LookAt(TargetInterestingPoint, BackView, AnimatorViewEditor.TargetSceneZoom, true, true);
+									break;
+							}
+						}
 						TargetSceneView.Repaint();
 					}
 				}
@@ -33,17 +73,46 @@ namespace com.vrsuya.animatorview {
 			return;
 		}
 
+		/// <summary>Scene이 어느 방향을 향하고 있는지 검사합니다.</summary>
+		private static void CheckSceneViewModes() {
+			if (AnimatorViewEditor.IsRotationLocked) {
+				if (SceneViewModes.Count == 0) {
+					foreach (SceneView TargetSceneView in SceneView.sceneViews) {
+						SceneViewModes.Add(TargetSceneView, GetViewName(TargetSceneView.camera.transform.forward));
+					}
+				}
+			} else {
+				if (SceneViewModes.Count != 0) {
+					SceneViewModes = new Dictionary<SceneView, string>();
+				}
+			}
+			
+			return;
+		}
+
+		/// <summary>Vector 방향을 반환합니다.</summary>
+		private static string GetViewName(Vector3 Direction) {
+			if (Direction == Vector3.down) return "Top";
+			if (Direction == Vector3.up) return "Bottom";
+			if (Direction == Vector3.left) return "Right";
+			if (Direction == Vector3.right) return "Left";
+			if (Direction == Vector3.forward) return "Back";
+			if (Direction == Vector3.back) return "Front";
+			return "Custom";
+		}
+
 		[ExecuteInEditMode]
 		public class AnimatorViewEditor : EditorWindow {
 
 			public static bool IsSceneViewLocked = false;
+			public static bool IsRotationLocked = false;
 			public static Object TargetGameObject = null;
 			public static Vector3 TargetOffset = Vector3.zero;
 			public static float TargetSceneZoom = 0.1f;
 
 			[MenuItem("Tools/VRSuya/AnimatorView", priority = 1000)]
 			static void CreateWindow() {
-				AnimatorViewEditor AppWindow = (AnimatorViewEditor)GetWindowWithRect(typeof(AnimatorViewEditor), new Rect(0, 0, 230, 160));
+				AnimatorViewEditor AppWindow = (AnimatorViewEditor)GetWindowWithRect(typeof(AnimatorViewEditor), new Rect(0, 0, 230, 180));
 				AppWindow.titleContent = new GUIContent("AnimatorView");
 			}
 
@@ -57,6 +126,11 @@ namespace com.vrsuya.animatorview {
 				GUILayout.BeginHorizontal();
 				GUILayout.FlexibleSpace();
 				IsSceneViewLocked = EditorGUILayout.Toggle("Active", IsSceneViewLocked, GUILayout.Width(200));
+				GUILayout.FlexibleSpace();
+				GUILayout.EndHorizontal();
+				GUILayout.BeginHorizontal();
+				GUILayout.FlexibleSpace();
+				IsRotationLocked = EditorGUILayout.Toggle("Rotation Lock", IsRotationLocked, GUILayout.Width(200));
 				GUILayout.FlexibleSpace();
 				GUILayout.EndHorizontal();
 				GUILayout.BeginHorizontal();
