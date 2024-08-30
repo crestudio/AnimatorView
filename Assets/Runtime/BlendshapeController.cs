@@ -36,6 +36,7 @@ namespace com.vrsuya.animatorview {
 			if (!TargetSkinnedMeshRenderer) TargetSkinnedMeshRenderer = this.gameObject.GetComponent<SkinnedMeshRenderer>();
 			if (!TargetAnimatorController) TargetAnimatorController = this.transform.parent.GetComponent<Animator>();
 			if (TargetSkinnedMeshRenderer && TargetAnimatorController) TargetBlendShapeNames = GetAnimationBlendshapeName(TargetAnimatorController);
+			BlendShapeList = new Dictionary<string, int>();
 			CreateSlidersForBlendshapes();
 			return;
 		}
