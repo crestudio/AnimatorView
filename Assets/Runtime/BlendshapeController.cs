@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEditor;
 using UnityEditor.Animations;
 
@@ -15,72 +14,70 @@ using UnityEditor.Animations;
 
 namespace com.vrsuya.animatorview {
 
-	[ExecuteInEditMode]
 	[AddComponentMenu("VRSuya/VRSuya Blendshape Viewer")]
 	public class BlendshapeController : MonoBehaviour {
 
 		public SkinnedMeshRenderer TargetSkinnedMeshRenderer = null;
-		public Animator TargetAnimator = null;
-		public GameObject SliderPrefab;
+		public Animator TargetAnimatorController = null;
 
-		private string[] TargetBlendShapeNames = new string[0];
-		private Dictionary<string, Slider> BlendShapeSliders = new Dictionary<string, Slider>();
+		private List<string> TargetBlendShapeNames = new List<string>();
+		public Dictionary<string, int> BlendShapeList = new Dictionary<string, int>();
 		private readonly string[] dictHeadNames = new string[] { "Body", "Head", "Face" };
 
-		void Start() {
+		private void Start() {
 			if (!TargetSkinnedMeshRenderer) TargetSkinnedMeshRenderer = this.gameObject.GetComponent<SkinnedMeshRenderer>();
-			if (!TargetAnimator) TargetAnimator = this.transform.parent.GetComponent<Animator>();
+			if (!TargetAnimatorController) TargetAnimatorController = this.transform.parent.GetComponent<Animator>();
+			UpdateSlider();
+			return;
+		}
+
+		/// <summary>새로운 슬라이더 객체로 업데이트 합니다.</summary>
+		public void UpdateSlider() {
+			if (!TargetSkinnedMeshRenderer) TargetSkinnedMeshRenderer = this.gameObject.GetComponent<SkinnedMeshRenderer>();
+			if (!TargetAnimatorController) TargetAnimatorController = this.transform.parent.GetComponent<Animator>();
+			if (TargetSkinnedMeshRenderer && TargetAnimatorController) TargetBlendShapeNames = GetAnimationBlendshapeName(TargetAnimatorController);
 			CreateSlidersForBlendshapes();
 			return;
 		}
 
+		/// <summary>애니메이션에 존재하는 Blendshape들로 Slider 객체를 생성합니다.</summary>
 		private void CreateSlidersForBlendshapes() {
 			Mesh TargetMesh = TargetSkinnedMeshRenderer.sharedMesh;
 			int BlendShapeCount = TargetMesh.blendShapeCount;
+			for (int Index = 0; Index < BlendShapeCount; Index++) {
+				if (TargetBlendShapeNames.Exists(AnimationBlendShapeName => TargetMesh.GetBlendShapeName(Index) == AnimationBlendShapeName)) {
+					BlendShapeList.Add(TargetMesh.GetBlendShapeName(Index), Index);
+				}
+			}
+			return;
+		}
+
+		/// <summary>모든 AnimatorController의 Blendshape 이름 리스트를 반환합니다.</summary>
+		/// <returns>AnimatorController의 Blendshape 이름 리스트</returns>
+		private List<string> GetAnimationBlendshapeName(Animator TargetAnimator) {
+			List<string> newBlendshapeName = new List<string>();
 			if (TargetAnimator) {
 				AnimationClip[] AllAnimationClips = GetAnimationClips((AnimatorController)TargetAnimator.runtimeAnimatorController);
 				foreach (AnimationClip TargetAnimationClip in AllAnimationClips) {
-					foreach (var Binding in AnimationUtility.GetCurveBindings(TargetAnimationClip)) {
-						if (Array.Exists(dictHeadNames, Name => Binding.path == Name)) {
-							if (Binding.type == typeof(SkinnedMeshRenderer)) {
-								string BlendshapeName = Binding.propertyName.Remove(0, 11);
-								if (!Array.Exists(TargetBlendShapeNames, Item => BlendshapeName == Item)) {
-									TargetBlendShapeNames = TargetBlendShapeNames.Concat(new string[] { BlendshapeName }).ToArray();
+					foreach (EditorCurveBinding TargetBinding in AnimationUtility.GetCurveBindings(TargetAnimationClip)) {
+						if (Array.Exists(dictHeadNames, HeadMeshName => TargetBinding.path == HeadMeshName)) {
+							if (TargetBinding.type == typeof(SkinnedMeshRenderer)) {
+								string BlendshapeName = TargetBinding.propertyName.Remove(0, 11);
+								if (!newBlendshapeName.Contains(BlendshapeName)) {
+									newBlendshapeName.Add(BlendshapeName);
 								}
 							}
 						}
 					}
 				}
 			}
-			for (int Index = 0; Index < BlendShapeCount; Index++) {
-				if (Array.Exists(TargetBlendShapeNames, Item => TargetMesh.GetBlendShapeName(Index) == Item)) {
-					string BlendShapeName = TargetMesh.GetBlendShapeName(Index);
-					float CurrentValue = TargetSkinnedMeshRenderer.GetBlendShapeWeight(Index);
-					GameObject TargetSliderObj = Instantiate(SliderPrefab, transform);
-					Slider TargetSlider = TargetSliderObj.GetComponent<Slider>();
-					TargetSlider.minValue = 0;
-					TargetSlider.maxValue = 100;
-					TargetSlider.value = CurrentValue;
-					TargetSlider.name = BlendShapeName;
-					int BlendShapeIndex = Index;
-					TargetSlider.onValueChanged.AddListener(BlendShapeValue => {
-						TargetSkinnedMeshRenderer.SetBlendShapeWeight(BlendShapeIndex, BlendShapeValue);
-					});
-					BlendShapeSliders.Add(BlendShapeName, TargetSlider);
-				}
-			}
-			return;
+			newBlendshapeName = newBlendshapeName.Distinct().ToList();
+			newBlendshapeName.Sort((a, b) => string.Compare(a, b, StringComparison.Ordinal));
+			return newBlendshapeName;
 		}
 
-		public void UpdateBlendshape(string BlendShapeName, float BlendShapeValue) {
-			if (BlendShapeSliders.ContainsKey(BlendShapeName)) {
-				BlendShapeSliders[BlendShapeName].value = BlendShapeValue;
-				int index = TargetSkinnedMeshRenderer.sharedMesh.GetBlendShapeIndex(BlendShapeName);
-				TargetSkinnedMeshRenderer.SetBlendShapeWeight(index, BlendShapeValue);
-			}
-			return;
-		}
-
+		/// <summary>모든 AnimatorController의 AnimationClip 어레이를 반환합니다.</summary>
+		/// <returns>AnimatorController의 AnimationClip 어레이</returns>
 		private AnimationClip[] GetAnimationClips(AnimatorController TargetAnimatorController) {
 			List<AnimatorStateMachine> RootStateMachines = TargetAnimatorController.layers.Select(AnimationLayer => AnimationLayer.stateMachine).ToList();
 			List<AnimatorStateMachine> AllStateMachines = new List<AnimatorStateMachine>();
@@ -103,6 +100,8 @@ namespace com.vrsuya.animatorview {
 			return AllAnimationClips.ToArray();
 		}
 
+		/// <summary>모든 State 어레이를 반환합니다.</summary>
+		/// <returns>State 어레이</returns>
 		private AnimatorState[] GetAllStates(AnimatorStateMachine TargetStateMachine) {
 			AnimatorState[] States = TargetStateMachine.states.Select(ExistChildState => ExistChildState.state).ToArray();
 			if (TargetStateMachine.stateMachines.Length > 0) {
@@ -113,6 +112,8 @@ namespace com.vrsuya.animatorview {
 			return States;
 		}
 
+		/// <summary>모든 StateMachine 어레이를 반환합니다.</summary>
+		/// <returns>StateMachine 어레이</returns>
 		private AnimatorStateMachine[] GetAllStateMachines(AnimatorStateMachine TargetStateMachine) {
 			AnimatorStateMachine[] StateMachines = new AnimatorStateMachine[] { TargetStateMachine };
 			if (TargetStateMachine.stateMachines.Length > 0) {
@@ -123,6 +124,8 @@ namespace com.vrsuya.animatorview {
 			return StateMachines;
 		}
 
+		/// <summary>모든 AnimationClip 어레이를 반환합니다.</summary>
+		/// <returns>AnimationClip 어레이</returns>
 		private AnimationClip[] GetAnimationClips(Motion TargetMotion) {
 			AnimationClip[] MotionAnimationClips = new AnimationClip[0];
 			if (TargetMotion is AnimationClip) {
