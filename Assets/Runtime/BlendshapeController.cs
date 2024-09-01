@@ -24,7 +24,7 @@ namespace com.vrsuya.animatorview {
 		public Dictionary<string, int> BlendShapeList = new Dictionary<string, int>();
 		private readonly string[] dictHeadNames = new string[] { "Body", "Head", "Face" };
 
-		private void Start() {
+		void Start() {
 			if (!TargetSkinnedMeshRenderer) TargetSkinnedMeshRenderer = this.gameObject.GetComponent<SkinnedMeshRenderer>();
 			if (!TargetAnimator) TargetAnimator = this.transform.parent.GetComponent<Animator>();
 			UpdateBlendshapeList();
