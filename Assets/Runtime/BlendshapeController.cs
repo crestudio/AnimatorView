@@ -26,23 +26,23 @@ namespace com.vrsuya.animatorview {
 
 		private void Start() {
 			if (!TargetSkinnedMeshRenderer) TargetSkinnedMeshRenderer = this.gameObject.GetComponent<SkinnedMeshRenderer>();
-			UpdateSlider();
 			if (!TargetAnimator) TargetAnimator = this.transform.parent.GetComponent<Animator>();
+			UpdateBlendshapeList();
 			return;
 		}
 
-		/// <summary>새로운 슬라이더 객체로 업데이트 합니다.</summary>
-		public void UpdateSlider() {
+		/// <summary>Blendshape 리스트를 업데이트 합니다.</summary>
+		public void UpdateBlendshapeList() {
 			if (!TargetSkinnedMeshRenderer) TargetSkinnedMeshRenderer = this.gameObject.GetComponent<SkinnedMeshRenderer>();
 			if (!TargetAnimator) TargetAnimator = this.transform.parent.GetComponent<Animator>();
 			if (TargetSkinnedMeshRenderer && TargetAnimator) TargetBlendShapeNames = GetAnimationBlendshapeName(TargetAnimator);
 			BlendShapeList = new Dictionary<string, int>();
-			CreateSlidersForBlendshapes();
+			CreateBlendshapeList();
 			return;
 		}
 
-		/// <summary>애니메이션에 존재하는 Blendshape들로 Slider 객체를 생성합니다.</summary>
-		private void CreateSlidersForBlendshapes() {
+		/// <summary>애니메이션에 존재하는 Blendshape 명으로 리스트를 작성합니다.</summary>
+		private void CreateBlendshapeList() {
 			Mesh TargetMesh = TargetSkinnedMeshRenderer.sharedMesh;
 			int BlendShapeCount = TargetMesh.blendShapeCount;
 			for (int Index = 0; Index < BlendShapeCount; Index++) {

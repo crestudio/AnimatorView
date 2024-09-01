@@ -47,7 +47,7 @@ namespace com.vrsuya.animatorview {
 			EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 			serializedObject.ApplyModifiedProperties();
 			if (GUILayout.Button("리스트 업데이트")) {
-				(target as BlendshapeController).UpdateSlider();
+				(target as BlendshapeController).UpdateBlendshapeList();
 			}
 		}
     }
