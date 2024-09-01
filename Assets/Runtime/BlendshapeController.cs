@@ -18,7 +18,7 @@ namespace com.vrsuya.animatorview {
 	public class BlendshapeController : MonoBehaviour {
 
 		public SkinnedMeshRenderer TargetSkinnedMeshRenderer = null;
-		public Animator TargetAnimatorController = null;
+		public Animator TargetAnimator = null;
 
 		private List<string> TargetBlendShapeNames = new List<string>();
 		public Dictionary<string, int> BlendShapeList = new Dictionary<string, int>();
@@ -26,16 +26,16 @@ namespace com.vrsuya.animatorview {
 
 		private void Start() {
 			if (!TargetSkinnedMeshRenderer) TargetSkinnedMeshRenderer = this.gameObject.GetComponent<SkinnedMeshRenderer>();
-			if (!TargetAnimatorController) TargetAnimatorController = this.transform.parent.GetComponent<Animator>();
 			UpdateSlider();
+			if (!TargetAnimator) TargetAnimator = this.transform.parent.GetComponent<Animator>();
 			return;
 		}
 
 		/// <summary>새로운 슬라이더 객체로 업데이트 합니다.</summary>
 		public void UpdateSlider() {
 			if (!TargetSkinnedMeshRenderer) TargetSkinnedMeshRenderer = this.gameObject.GetComponent<SkinnedMeshRenderer>();
-			if (!TargetAnimatorController) TargetAnimatorController = this.transform.parent.GetComponent<Animator>();
-			if (TargetSkinnedMeshRenderer && TargetAnimatorController) TargetBlendShapeNames = GetAnimationBlendshapeName(TargetAnimatorController);
+			if (!TargetAnimator) TargetAnimator = this.transform.parent.GetComponent<Animator>();
+			if (TargetSkinnedMeshRenderer && TargetAnimator) TargetBlendShapeNames = GetAnimationBlendshapeName(TargetAnimator);
 			BlendShapeList = new Dictionary<string, int>();
 			CreateSlidersForBlendshapes();
 			return;
