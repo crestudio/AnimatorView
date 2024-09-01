@@ -14,20 +14,18 @@ namespace com.vrsuya.animatorview {
     public class BlendshapeControllerEditor : Editor {
 
 		SerializedProperty SerializedTargetSkinnedMeshRenderer;
-		SerializedProperty SerializedTargetAnimatorController;
-		SerializedProperty SerializedBlendShapeSliders;
+		SerializedProperty SerializedTargetAnimator;
 
 		void OnEnable() {
 			SerializedTargetSkinnedMeshRenderer = serializedObject.FindProperty("TargetSkinnedMeshRenderer");
-			SerializedTargetAnimatorController = serializedObject.FindProperty("TargetAnimatorController");
-			SerializedBlendShapeSliders = serializedObject.FindProperty("BlendShapeSliders");
+			SerializedTargetAnimator = serializedObject.FindProperty("TargetAnimator");
 		}
 
         public override void OnInspectorGUI() {
 			serializedObject.Update();
 			BlendshapeController Instance = (BlendshapeController)target;
 			EditorGUILayout.PropertyField(SerializedTargetSkinnedMeshRenderer, new GUIContent("스킨드 메쉬 렌더러"));
-			EditorGUILayout.PropertyField(SerializedTargetAnimatorController, new GUIContent("애니메이터"));
+			EditorGUILayout.PropertyField(SerializedTargetAnimator, new GUIContent("애니메이터"));
 			if (Instance.BlendShapeList.Count > 0) {
 				for (int Index = 0; Index < Instance.BlendShapeList.Count; Index++) {
 					string BlendShapeName = Instance.BlendShapeList.Keys.ElementAt(Index);
