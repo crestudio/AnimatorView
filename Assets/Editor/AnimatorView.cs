@@ -30,9 +30,10 @@ namespace com.vrsuya.animatorview {
 				if ((GameObject)AnimatorViewEditor.TargetGameObject) {
 					CheckSceneViewModes();
 					foreach (SceneView TargetSceneView in SceneView.sceneViews) {
-						Vector3 TargetInterestingPoint = ((GameObject)AnimatorViewEditor.TargetGameObject).transform.position + AnimatorViewEditor.TargetOffset;
+						Vector3 TargetInterestingPoint = ((GameObject)AnimatorViewEditor.TargetGameObject).transform.localPosition + AnimatorViewEditor.TargetOffset;
+						Vector3 TargetWorldPosition = ((GameObject)AnimatorViewEditor.TargetGameObject).transform.parent.TransformPoint(TargetInterestingPoint);
 						if (!AnimatorViewEditor.IsRotationLocked) {
-							TargetSceneView.pivot = TargetInterestingPoint;
+							TargetSceneView.pivot = TargetWorldPosition;
 							TargetSceneView.size = AnimatorViewEditor.TargetSceneZoom;
 						} else {
 							Quaternion ReferenceRotation = ((GameObject)AnimatorViewEditor.TargetGameObject).transform.rotation;
