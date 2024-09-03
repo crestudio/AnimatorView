@@ -109,7 +109,7 @@ namespace com.vrsuya.animatorview {
 			public static bool IsRotationLocked = false;
 			public static Object TargetGameObject = null;
 			public static Vector3 TargetOffset = Vector3.zero;
-			public static float TargetSceneZoom = 0.1f;
+			public static float TargetSceneZoom = 0.2f;
 
 			[MenuItem("Tools/VRSuya/AnimatorView", priority = 1000)]
 			static void CreateWindow() {
