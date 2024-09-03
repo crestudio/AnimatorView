@@ -45,25 +45,25 @@ namespace com.vrsuya.animatorview {
 							Quaternion BackView = ReferenceRotation * Quaternion.LookRotation(Vector3.back);
 							switch (SceneViewModes[TargetSceneView]) {
 								case "Top":
-									TargetSceneView.LookAt(TargetInterestingPoint, BottomView, AnimatorViewEditor.TargetSceneZoom, true, true);
+									TargetSceneView.LookAt(TargetWorldPosition, BottomView, AnimatorViewEditor.TargetSceneZoom, true, true);
 									break;
 								case "Bottom":
-									TargetSceneView.LookAt(TargetInterestingPoint, TopView, AnimatorViewEditor.TargetSceneZoom, true, true);
+									TargetSceneView.LookAt(TargetWorldPosition, TopView, AnimatorViewEditor.TargetSceneZoom, true, true);
 									break;
 								case "Left":
-									TargetSceneView.LookAt(TargetInterestingPoint, RightView, AnimatorViewEditor.TargetSceneZoom, true, true);
+									TargetSceneView.LookAt(TargetWorldPosition, RightView, AnimatorViewEditor.TargetSceneZoom, true, true);
 									break;
 								case "Right":
-									TargetSceneView.LookAt(TargetInterestingPoint, LeftView, AnimatorViewEditor.TargetSceneZoom, true, true);
+									TargetSceneView.LookAt(TargetWorldPosition, LeftView, AnimatorViewEditor.TargetSceneZoom, true, true);
 									break;
 								case "Front":
-									TargetSceneView.LookAt(TargetInterestingPoint, BackView, AnimatorViewEditor.TargetSceneZoom, true, true);
+									TargetSceneView.LookAt(TargetWorldPosition, BackView, AnimatorViewEditor.TargetSceneZoom, true, true);
 									break;
 								case "Back":
-									TargetSceneView.LookAt(TargetInterestingPoint, FrontView, AnimatorViewEditor.TargetSceneZoom, true, true);
+									TargetSceneView.LookAt(TargetWorldPosition, FrontView, AnimatorViewEditor.TargetSceneZoom, true, true);
 									break;
 								default:
-									TargetSceneView.LookAt(TargetInterestingPoint, BackView, AnimatorViewEditor.TargetSceneZoom, true, true);
+									TargetSceneView.LookAt(TargetWorldPosition, BackView, AnimatorViewEditor.TargetSceneZoom, true, true);
 									break;
 							}
 						}
