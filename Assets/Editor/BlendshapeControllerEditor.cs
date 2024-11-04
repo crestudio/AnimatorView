@@ -30,6 +30,7 @@ namespace com.vrsuya.animatorview {
 			EditorGUILayout.PropertyField(SerializedTargetSkinnedMeshRenderer, new GUIContent("SkinnedMeshRenderer"));
 			EditorGUILayout.PropertyField(SerializedTargetAnimator, new GUIContent("Animator"));
 			if (Instance.BlendShapeList.Count > 0) {
+				EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 				for (int Index = 0; Index < Instance.BlendShapeList.Count; Index++) {
 					string BlendShapeName = Instance.BlendShapeList.Keys.ElementAt(Index);
 					float CurrentValue = Instance.TargetSkinnedMeshRenderer.GetBlendShapeWeight(Instance.BlendShapeList.Values.ElementAt(Index));
@@ -69,4 +70,3 @@ namespace com.vrsuya.animatorview {
 		}
     }
 }
-
