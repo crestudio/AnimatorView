@@ -27,8 +27,8 @@ namespace com.vrsuya.animatorview {
         public override void OnInspectorGUI() {
 			serializedObject.Update();
 			BlendshapeController Instance = (BlendshapeController)target;
-			EditorGUILayout.PropertyField(SerializedTargetSkinnedMeshRenderer, new GUIContent("스킨드 메쉬 렌더러"));
-			EditorGUILayout.PropertyField(SerializedTargetAnimator, new GUIContent("애니메이터"));
+			EditorGUILayout.PropertyField(SerializedTargetSkinnedMeshRenderer, new GUIContent("SkinnedMeshRenderer"));
+			EditorGUILayout.PropertyField(SerializedTargetAnimator, new GUIContent("Animator"));
 			if (Instance.BlendShapeList.Count > 0) {
 				for (int Index = 0; Index < Instance.BlendShapeList.Count; Index++) {
 					string BlendShapeName = Instance.BlendShapeList.Keys.ElementAt(Index);
@@ -52,7 +52,7 @@ namespace com.vrsuya.animatorview {
 			}
 			if (ExceedLimitBlendshape.Count > 0) {
 				EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
-				EditorGUILayout.LabelField("수치를 초과한 Blendshape");
+				EditorGUILayout.LabelField("Out-of-Range Blendshape List");
 				EditorGUI.indentLevel++;
 				foreach (string ExceedBlendshape in ExceedLimitBlendshape) {
 					EditorGUILayout.LabelField("▶ " + ExceedBlendshape);
@@ -61,7 +61,7 @@ namespace com.vrsuya.animatorview {
 			}
 			EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 			serializedObject.ApplyModifiedProperties();
-			if (GUILayout.Button("리스트 업데이트")) {
+			if (GUILayout.Button("Update List")) {
 				(target as BlendshapeController).UpdateBlendshapeList();
 				ExceedLimitBlendshape = new List<string>();
 			}
